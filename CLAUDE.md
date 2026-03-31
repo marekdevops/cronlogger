@@ -4,15 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stan projektu
 
-Projekt nie został jeszcze zbudowany. W repozytorium istnieje tylko:
-- `logs_template.sh` — szablon produkcyjny skryptu (NIE modyfikować)
-- `CLAUDE.md` — pełna specyfikacja projektu (ten plik)
-
-**Zacznij od Kroku 1** — przeanalizuj `logs_template.sh` i utwórz `SCRIPT_ANALYSIS.md`, zanim napiszesz jakikolwiek kod.
+Projekt zaimplementowany. Kod aplikacji w `src/`, konfiguracja w `config/`, deploy w `deploy/`.
+`SCRIPT_ANALYSIS.md` zawiera analizę `logs_template.sh`.
 
 ---
 
-# Cron Script Manager Web App (RHEL 7)
+# Cron Script Manager Web App (RHEL 7 / 8 / 9)
 
 ## Cel projektu
 
@@ -44,44 +41,32 @@ Zrób następujące rzeczy:
 
 ## Krok 2 — Stack technologiczny
 
-### Źródło pakietów
+### Kompatybilność systemowa
 
-Dozwolone repozytoria:
-- `rhel-7-server-rpms` — base
-- `rhel-7-server-extras-rpms` — extras (nginx)
-- `rhel-server-rhscl-7-rpms` — **Red Hat Software Collections (RHSCL)** — oficjalny produkt
-  Red Hat, wchodzi w skład standardowej subskrypcji RHEL. Daje dostęp do Node.js 10/12.
+Aplikacja obsługuje RHEL 7, 8 i 9. `install.sh` wykrywa wersję automatycznie.
+
+| Wersja RHEL | Menadżer pakietów | Źródło Node.js | Ścieżka node |
+|---|---|---|---|
+| RHEL 7 | `yum` | SCL `rh-nodejs12` (`rhel-server-rhscl-7-rpms`) | `/opt/rh/rh-nodejs12/root/usr/bin/node` |
+| RHEL 8 | `dnf` | AppStream module `nodejs:18` (`rhel-8-for-x86_64-appstream-rpms`) | `/usr/bin/node` |
+| RHEL 9 | `dnf` | AppStream module `nodejs:20` (`rhel-9-for-x86_64-appstream-rpms`) | `/usr/bin/node` |
 
 **Nie używaj:** EPEL, npmjs.com, pip, gem ani żadnych innych zewnętrznych źródeł.
 
-### Wymagane pakiety RPM
+### Node.js na RHEL 7 — SCL
 
+Na RHEL 7 Node.js pochodzi z Red Hat Software Collections. Binarka wymaga zmiennych środowiskowych SCL.
+`install.sh` generuje `cronmanager.service` z tymi zmiennymi automatycznie:
 ```
-nginx                    # rhel-7-server-extras-rpms
-rh-nodejs12              # rhel-server-rhscl-7-rpms (Node.js 12 LTS via SCL)
-cronie                   # rhel-7-server-rpms
-openssl                  # rhel-7-server-rpms (generowanie certów)
+Environment="PATH=/opt/rh/rh-nodejs12/root/usr/bin:..."
+Environment="LD_LIBRARY_PATH=/opt/rh/rh-nodejs12/root/usr/lib64"
+Environment="NODE_PATH=/opt/rh/rh-nodejs12/root/usr/lib/node_modules"
 ```
-
-> Jeśli `rh-nodejs12` jest niedostępne, użyj `rh-nodejs10`. Sprawdź dostępność:
-> ```bash
-> yum --enablerepo=rhel-server-rhscl-7-rpms info rh-nodejs12
-> ```
-
-### Aktywacja SCL dla Node.js
-
-Node.js z SCL wymaga aktywacji środowiska:
-```bash
-# jednorazowo w sesji
-source /opt/rh/rh-nodejs12/enable
-```
-
-Binarka node dostępna jako `/opt/rh/rh-nodejs12/root/usr/bin/node`.
-W pliku systemd service używaj pełnej ścieżki z ustawieniem zmiennych środowiskowych SCL.
+Na RHEL 8/9 te zmienne nie są potrzebne — używany jest standardowy `/usr/bin/node`.
 
 ### Stack aplikacji
 
-- **Backend**: Node.js 12 (SCL), **wyłącznie wbudowane moduły** — zero npm install w produkcji
+- **Backend**: Node.js (≥12), **wyłącznie wbudowane moduły** — zero npm install w produkcji
 - **Web server / reverse proxy**: nginx — terminuje SSL i HTTP Basic Auth, proxuje do Node.js
 - **Frontend**: czysty HTML5 + CSS3 + vanilla JavaScript (bez frameworków, bez bundlerów)
 - **Autentykacja**: HTTP Basic Auth przez nginx (`openssl passwd`)

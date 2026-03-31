@@ -1,12 +1,17 @@
 # CronManager
 
-Webowa aplikacja do zarządzania i monitorowania skryptów cron na RHEL 7.
+Webowa aplikacja do zarządzania i monitorowania skryptów cron na RHEL 7 / 8 / 9.
 
 ## Wymagania
 
-- RHEL 7 z aktywną subskrypcją
-- Repozytoria: `rhel-7-server-extras-rpms`, `rhel-server-rhscl-7-rpms`
+- RHEL 7, 8 lub 9 z aktywną subskrypcją Red Hat
 - Dostęp root do instalacji
+
+| RHEL | Node.js | Repozytoria |
+|------|---------|-------------|
+| 7 | SCL `rh-nodejs12` | `rhel-7-server-extras-rpms`, `rhel-server-rhscl-7-rpms` |
+| 8 | AppStream `nodejs:18` | `rhel-8-for-x86_64-appstream-rpms` |
+| 9 | AppStream `nodejs:20` | `rhel-9-for-x86_64-appstream-rpms` |
 
 ## Szybka instalacja
 

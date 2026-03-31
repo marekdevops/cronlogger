@@ -10,18 +10,15 @@ User=cronmanager
 Group=cronmanager
 WorkingDirectory=/opt/cronmanager
 
-# Aktywacja SCL Node.js 12 przez zmienne środowiskowe
-Environment="PATH=/opt/rh/rh-nodejs12/root/usr/bin:/usr/local/bin:/usr/bin:/bin"
-Environment="LD_LIBRARY_PATH=/opt/rh/rh-nodejs12/root/usr/lib64"
+# RHEL 8/9 — node dostępny jako /usr/bin/node (AppStream)
+# RHEL 7   — install.sh generuje ten plik z SCL env vars i ścieżką /opt/rh/rh-nodejsXX/...
 Environment="NODE_ENV=production"
-Environment="NODE_PATH=/opt/rh/rh-nodejs12/root/usr/lib/node_modules"
 
-ExecStart=/opt/rh/rh-nodejs12/root/usr/bin/node src/server.js
+ExecStart=/usr/bin/node src/server.js
 Restart=always
 RestartSec=5
 TimeoutStopSec=10
 
-# Logowanie do pliku przez journald redirect
 StandardOutput=append:/opt/cronmanager/logs/app.log
 StandardError=append:/opt/cronmanager/logs/app.log
 
