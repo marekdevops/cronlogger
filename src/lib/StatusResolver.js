@@ -3,6 +3,7 @@
 const fs        = require('fs');
 const logReader = require('./LogReader');
 const config    = require('./ConfigLoader');
+const appLog    = require('./AppLogger');
 
 /**
  * Zdeterminuj status skryptu.
@@ -33,7 +34,6 @@ async function resolve(scriptConfig) {
         } catch (err) {
             if (err.code !== 'ENOENT') {
                 // Nieoczekiwany błąd — loguj ale kontynuuj fallback
-                const appLog = require('../lib/AppLogger');
                 appLog.warn(`StatusResolver: błąd odczytu status_file dla ${scriptConfig.id}: ${err.message}`);
             }
             // ENOENT — plik statusu nie istnieje, przejdź do fallbacku

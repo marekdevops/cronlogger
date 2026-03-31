@@ -101,7 +101,7 @@ chmod -R 750 /opt/cronmanager
 # Pliki statyczne — nginx (w grupie cronmanager) czyta przez uprawnienia grupowe (750 = rwxr-x---)
 # Katalogi muszą być traversowalne przez grupę
 chmod 750 /opt/cronmanager /opt/cronmanager/src /opt/cronmanager/src/public
-chmod 640 /opt/cronmanager/config/scripts.json
+chmod 640 /opt/cronmanager/config/scripts.yaml
 echo "  OK: pliki zainstalowane w /opt/cronmanager"
 
 # ── 7. SSL self-signed cert ──────────────────────────────

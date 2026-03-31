@@ -1,0 +1,19 @@
+# CronManager — konfiguracja skryptów
+#
+# Wymagane pola: id, name, script_path
+# Opcjonalne:    description, tags, log_file, status_file, cron_user
+#
+# log_file i status_file są wykrywane automatycznie ze skryptu.
+# Podaj je ręcznie tylko jeśli auto-detekcja da zły wynik.
+
+app:
+  port: 3000
+  cron_users:
+    - root
+  status_stale_hours: 48
+
+scripts:
+  - id: logs_template
+    name: Backup i transfer logów
+    script_path: /opt/scripts/logs_template.sh
+    description: Wyszukuje pliki logów, pakuje i wysyła przez FTP

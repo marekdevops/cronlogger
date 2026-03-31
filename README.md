@@ -30,28 +30,34 @@ Instalator:
 
 ## Konfiguracja skryptów
 
-Edytuj `/opt/cronmanager/config/scripts.json`:
+Edytuj `/opt/cronmanager/config/scripts.yaml`.
 
-```json
-{
-  "app": {
-    "port": 3000,
-    "cron_users": ["root"],
-    "status_stale_hours": 48
-  },
-  "scripts": [
-    {
-      "id": "moj_skrypt",
-      "name": "Mój skrypt backupu",
-      "description": "Opis co robi skrypt",
-      "script_path": "/opt/scripts/moj_skrypt.sh",
-      "log_file": "/var/log/scripts/moj_skrypt.log",
-      "status_file": "/var/log/scripts/moj_skrypt.status",
-      "cron_user": "root",
-      "tags": ["backup", "logs"]
-    }
-  ]
-}
+Minimalna konfiguracja — wystarczą trzy pola:
+
+```yaml
+scripts:
+  - id: moj_skrypt
+    name: Mój skrypt backupu
+    script_path: /opt/scripts/moj_skrypt.sh
+```
+
+Aplikacja **automatycznie wykrywa** z treści skryptu:
+- `log_file` — szuka `LOG_FILE=`, `exec >>`, `LOG=`
+- `status_file` — szuka `echo $? >`
+- `tags` — wykrywa użycie ftp, rsync, tar, mysql, curl itp.
+
+Możesz nadpisać auto-detekcję podając pola ręcznie:
+
+```yaml
+scripts:
+  - id: moj_skrypt
+    name: Mój skrypt backupu
+    script_path: /opt/scripts/moj_skrypt.sh
+    description: Opis co robi skrypt   # opcjonalne
+    log_file: /var/log/scripts/moj.log # opcjonalne — nadpisuje auto-detekcję
+    tags:                              # opcjonalne
+      - backup
+      - logs
 ```
 
 Po zmianie config zrestartuj usługę:
