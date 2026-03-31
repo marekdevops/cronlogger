@@ -1,0 +1,36 @@
+[Unit]
+Description=CronManager Web Application (Node.js)
+Documentation=file:///opt/cronmanager/README.md
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=cronmanager
+Group=cronmanager
+WorkingDirectory=/opt/cronmanager
+
+# Aktywacja SCL Node.js 12 przez zmienne środowiskowe
+Environment="PATH=/opt/rh/rh-nodejs12/root/usr/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="LD_LIBRARY_PATH=/opt/rh/rh-nodejs12/root/usr/lib64"
+Environment="NODE_ENV=production"
+Environment="NODE_PATH=/opt/rh/rh-nodejs12/root/usr/lib/node_modules"
+
+ExecStart=/opt/rh/rh-nodejs12/root/usr/bin/node src/server.js
+Restart=always
+RestartSec=5
+TimeoutStopSec=10
+
+# Logowanie do pliku przez journald redirect
+StandardOutput=append:/opt/cronmanager/logs/app.log
+StandardError=append:/opt/cronmanager/logs/app.log
+
+# Hardening procesu
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadOnlyPaths=/
+ReadWritePaths=/opt/cronmanager/logs
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRON MANAGER</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<header id="term-header">
+  <div class="header-logo">
+    <pre class="ascii-logo glow">
+ ██████╗██████╗  ██████╗ ███╗   ██╗    ███╗   ███╗ ██████╗ ██████╗
+██╔════╝██╔══██╗██╔═══██╗████╗  ██║    ████╗ ████║██╔════╝ ██╔══██╗
+██║     ██████╔╝██║   ██║██╔██╗ ██║    ██╔████╔██║██║  ███╗██████╔╝
+██║     ██╔══██╗██║   ██║██║╚██╗██║    ██║╚██╔╝██║██║   ██║██╔══██╗
+╚██████╗██║  ██║╚██████╔╝██║ ╚████║    ██║ ╚═╝ ██║╚██████╔╝██║  ██║
+ ╚═════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝    ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝</pre>
+  </div>
+  <div class="header-info">
+    <div class="header-row">
+      <span class="label">hostname:</span>
+      <span id="hdr-hostname" class="value">—</span>
+    </div>
+    <div class="header-row">
+      <span class="label">uptime:&nbsp;&nbsp;</span>
+      <span id="hdr-uptime" class="value">—</span>
+    </div>
+    <div class="header-row">
+      <span class="label">time:&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span id="hdr-clock" class="value cursor">—</span>
+    </div>
+  </div>
+</header>
+
+<nav id="term-nav">
+  <span class="nav-prompt">root@server:~$</span>
+  <a href="#dashboard" class="nav-link active" data-view="dashboard">[ DASHBOARD ]</a>
+  <a href="#crontabs"  class="nav-link"         data-view="crontabs" >[ CRONTABS  ]</a>
+  <a href="#logs"      class="nav-link"         data-view="logs"     >[ LOGS      ]</a>
+</nav>
+
+<main id="app">
+
+  <!-- DASHBOARD -->
+  <section id="view-dashboard" class="view active">
+    <div class="box-border">
+      <div class="box-title">▌DASHBOARD — STATUS SKRYPTÓW</div>
+      <div id="dash-counts" class="counts-row">
+        <span class="count-item">SCRIPTS: <span id="cnt-total" class="glow">—</span></span>
+        <span class="sep">║</span>
+        <span class="count-item ok-color">OK: <span id="cnt-ok">—</span></span>
+        <span class="sep">║</span>
+        <span class="count-item fail-color">FAILED: <span id="cnt-fail">—</span></span>
+        <span class="sep">║</span>
+        <span class="count-item warn-color">UNKNOWN: <span id="cnt-unknown">—</span></span>
+      </div>
+      <div class="box-divider"></div>
+      <div id="dash-table-header" class="table-header">
+        <span class="col-name">SCRIPT NAME</span>
+        <span class="col-schedule">SCHEDULE</span>
+        <span class="col-lastrun">LAST RUN</span>
+        <span class="col-status">STATUS</span>
+      </div>
+      <div class="box-divider"></div>
+      <div id="dash-scripts"></div>
+      <div class="box-divider"></div>
+      <div id="dash-refresh" class="refresh-row">
+        <span>Auto-refresh in: </span>
+        <span id="refresh-countdown" class="ok-color">60s</span>
+        <span> </span>
+        <span id="refresh-bar" class="progress-bar"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRONTABS -->
+  <section id="view-crontabs" class="view">
+    <div class="breadcrumb">root@<span id="ct-hostname">server</span>:~$ crontab -l</div>
+    <div class="box-border">
+      <div class="box-title">▌CRONTABS — WPISY UŻYTKOWNIKÓW</div>
+      <div id="ct-user-section"></div>
+    </div>
+    <div class="box-border" style="margin-top:1rem">
+      <div class="box-title">▌/etc/cron.d/ — SYSTEMOWE ZADANIA CRON</div>
+      <div id="ct-crond-section"></div>
+    </div>
+  </section>
+
+  <!-- LOGS -->
+  <section id="view-logs" class="view">
+    <div class="breadcrumb">root@<span id="log-hostname">server</span>:~$ tail -200 <span id="log-filepath">—</span></div>
+    <div class="box-border">
+      <div class="log-toolbar">
+        <span id="log-title" class="box-title">▌LOGS</span>
+        <span class="spacer"></span>
+        <span id="log-modified" class="log-meta">—</span>
+        <button id="btn-refresh-log" class="term-btn" onclick="App.refreshCurrentLog()">[REFRESH]</button>
+      </div>
+      <div id="log-content">
+        <div class="log-placeholder">Wybierz skrypt z dashboardu aby zobaczyć logi.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="term-footer">
+  <span>CronManager v1.0</span>
+  <span class="sep">║</span>
+  <span id="footer-status" class="ok-color">● CONNECTED</span>
+  <span class="sep">║</span>
+  <span id="footer-time">—</span>
+</footer>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>
