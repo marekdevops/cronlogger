@@ -19,15 +19,12 @@ Restart=always
 RestartSec=5
 TimeoutStopSec=10
 
-StandardOutput=append:/opt/cronmanager/logs/app.log
-StandardError=append:/opt/cronmanager/logs/app.log
+StandardOutput=journal
+StandardError=journal
 
-# Hardening procesu
+# Hardening procesu (kompatybilne z RHEL 7/8/9)
 NoNewPrivileges=true
 PrivateTmp=true
-ProtectSystem=strict
-ReadOnlyPaths=/
-ReadWritePaths=/opt/cronmanager/logs
 
 [Install]
 WantedBy=multi-user.target
