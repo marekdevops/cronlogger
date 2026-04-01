@@ -9,15 +9,19 @@ const path = require('path');
  * Zwraca: { log_file: string|null, status_file: string|null, tags: string[] }
  */
 function analyze(scriptPath) {
+    const scriptDir  = path.dirname(scriptPath);
+    const scriptName = path.basename(scriptPath, path.extname(scriptPath));
+
+    // Fallback gdy skrypt nie istnieje lub nie można go odczytać
+    const fallbackLog    = path.join(scriptDir, 'out', `${scriptName}.log`);
+    const fallbackStatus = path.join(scriptDir, 'out', `${scriptName}.status`);
+
     let content;
     try {
         content = fs.readFileSync(scriptPath, 'utf8');
     } catch (_) {
-        return { log_file: null, status_file: null, tags: [] };
+        return { log_file: fallbackLog, status_file: fallbackStatus, tags: [] };
     }
-
-    const scriptDir  = path.dirname(scriptPath);
-    const scriptName = path.basename(scriptPath, path.extname(scriptPath));
 
     // Podstawianie typowych zmiennych bashowych
     function sub(val) {

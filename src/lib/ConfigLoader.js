@@ -35,10 +35,12 @@ function load() {
     // Wzbogać każdy wpis o auto-wykryte dane ze skryptu
     parsed.scripts = parsed.scripts.map(enrich);
 
-    // Walidacja po wzbogaceniu
+    // Walidacja po wzbogaceniu — brak log_file to ostrzeżenie, nie crash
     for (const s of parsed.scripts) {
-        if (!s.id)       throw new Error(`scripts.yaml: wpis bez "id": ${JSON.stringify(s)}`);
-        if (!s.log_file) throw new Error(`scripts.yaml [${s.id}]: brak "log_file" i auto-detekcja nieudana`);
+        if (!s.id) throw new Error(`scripts.yaml: wpis bez "id": ${JSON.stringify(s)}`);
+        if (!s.log_file) {
+            process.stderr.write(`[WARN] scripts.yaml [${s.id}]: nie wykryto log_file — status będzie UNKNOWN. Dodaj "log_file:" ręcznie.\n`);
+        }
     }
 
     _config = parsed;
