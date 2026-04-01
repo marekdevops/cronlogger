@@ -59,29 +59,42 @@ async function resolve(scriptConfig) {
         };
     }
 
-    // Keyword scan
-    const lines = await logReader.tailLines(scriptConfig.log_file, 20);
+    // Keyword scan — skanuj WSZYSTKIE linie, błąd ma priorytet nad sukcesem.
+    // Skrypt może dojść do "Zakończenie skryptu:" mimo wcześniejszego błędu FTP/innego.
+    const lines = await logReader.tailLines(scriptConfig.log_file, 50);
     if (!lines || lines.length === 0) {
         return { status: 'UNKNOWN', lastRun, message: 'Log jest pusty' };
     }
 
-    // Skanuj od końca — ostatnie informacje są ważniejsze
-    for (let i = lines.length - 1; i >= 0; i--) {
-        const line = lines[i].toUpperCase();
-        if (/\b(ERROR|FAILED|FAILURE|CRITICAL|BLAD)\b/.test(line)) {
-            return { status: 'FAILED', lastRun, message: 'Znaleziono błąd w logu' };
+    // Normalizacja polskich znaków — regex działa na ASCII
+    function normalize(str) {
+        return str
+            .toUpperCase()
+            .replace(/Ł/g, 'L').replace(/Ą/g, 'A').replace(/Ę/g, 'E')
+            .replace(/Ó/g, 'O').replace(/Ś/g, 'S').replace(/Ź|Ż/g, 'Z')
+            .replace(/Ć/g, 'C').replace(/Ń/g, 'N');
+    }
+
+    let foundFail = false;
+    let foundOk   = false;
+
+    for (const rawLine of lines) {
+        const line = normalize(rawLine);
+
+        if (/\b(ERROR|FAILED|FAILURE|CRITICAL|BLAD)\b/.test(line) ||
+            /BLAD PODCZAS|BLAD FTP|BLAD POLACZENIA/.test(line)) {
+            foundFail = true;
         }
-        if (/\b(SUCCESS|COMPLETED|OK|DONE|ZAKOŃCZONO|ZAKONCZONO|SUKCES)\b/.test(line)) {
-            return { status: 'OK', lastRun, message: 'Wykonanie zakończone sukcesem' };
-        }
-        // Specyficzne dla logs_template.sh
-        if (/Transfer FTP zakończony sukcesem/i.test(lines[i])) {
-            return { status: 'OK', lastRun, message: 'Transfer FTP zakończony sukcesem' };
-        }
-        if (/Zakończenie skryptu:/i.test(lines[i])) {
-            return { status: 'OK', lastRun, message: 'Skrypt zakończył się normalnie' };
+
+        if (/\b(SUCCESS|COMPLETED|SUKCES)\b/.test(line) ||
+            /TRANSFER FTP ZAKONCZONY SUKCESEM/.test(line)) {
+            foundOk = true;
         }
     }
+
+    // Błąd gdziekolwiek w logu = FAIL, nawet jeśli skrypt dobiegł do końca
+    if (foundFail) return { status: 'FAILED', lastRun, message: 'Znaleziono błąd w logu' };
+    if (foundOk)   return { status: 'OK',     lastRun, message: 'Wykonanie zakończone sukcesem' };
 
     return { status: 'UNKNOWN', lastRun, message: 'Nie można określić statusu z logu' };
 }
